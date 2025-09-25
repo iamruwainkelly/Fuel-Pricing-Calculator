@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⛽ Dynamic Fuel Pricing Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⛽ Dynamic Fuel Pricing Calculator</h1>
+            <p>Per-Liter Pricing with Real-Time Market Calculations</p>
+        </header>
+        
+        <div class="calculator-form">
+            <div class="input-grid">
+                <div class="form-group">
+                    <label for="wholesalePrice">Wholesale Price (R per liter):</label>
+                    <input type="number" id="wholesalePrice" value="18.00" min="10" max="30" step="0.01" class="number-input">
+                    <small class="input-help">What we pay for fuel</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="retailPrice">Retail Price (R per liter):</label>
+                    <input type="number" id="retailPrice" value="20.00" min="15" max="35" step="0.01" class="number-input">
+                    <small class="input-help">Government gazetted price</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="customerTier">Customer Tier (1-14):</label>
+                    <select id="customerTier">
+                        <option value="1">Tier 1 (25% discount)</option>
+                        <option value="2">Tier 2 (22% discount)</option>
+                        <option value="3">Tier 3 (20% discount)</option>
+                        <option value="4">Tier 4 (18% discount)</option>
+                        <option value="5">Tier 5 (15% discount)</option>
+                        <option value="6" selected>Tier 6 (12% discount)</option>
+                        <option value="7">Tier 7 (10% discount)</option>
+                        <option value="8">Tier 8 (8% discount)</option>
+                        <option value="9">Tier 9 (6% discount)</option>
+                        <option value="10">Tier 10 (4% discount)</option>
+                        <option value="11">Tier 11 (3% discount)</option>
+                        <option value="12">Tier 12 (2% discount)</option>
+                        <option value="13">Tier 13 (1% discount)</option>
+                        <option value="14">Tier 14 (0% discount)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="exchangeRate">Exchange Rate (ZAR/USD):</label>
+                    <input type="number" id="exchangeRate" value="18.75" min="10" max="25" step="0.01" class="number-input">
+                    <small class="input-help">Currency adjustment factor</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="countryFactor">Country Factor:</label>
+                    <select id="countryFactor">
+                        <option value="1.0" selected>South Africa (1.0x)</option>
+                        <option value="1.15">Zimbabwe (1.15x)</option>
+                        <option value="1.08">Botswana (1.08x)</option>
+                        <option value="1.12">Namibia (1.12x)</option>
+                        <option value="1.25">Zambia (1.25x)</option>
+                        <option value="1.35">Mozambique (1.35x)</option>
+                    </select>
+                    <small class="input-help">Country-specific risk adjustment</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="gridLocation">Grid Pricing Location:</label>
+                    <select id="gridLocation">
+                        <option value="coastal">Coastal (0.95x - Cheaper)</option>
+                        <option value="urban" selected>Urban (1.0x - Standard)</option>
+                        <option value="suburban">Suburban (1.05x)</option>
+                        <option value="inland">Inland (1.15x - More Expensive)</option>
+                        <option value="remote">Remote (1.25x - Most Expensive)</option>
+                    </select>
+                    <small class="input-help">Location-based pricing adjustment</small>
+                </div>
+            </div>
+
+            <button id="calculateBtn" class="calculate-btn">Calculate Per-Liter Price</button>
+        </div>
+
+        <div id="results" class="results-container" style="display: none;">
+            <div class="final-price-header">
+                <h2>⛽ Per-Liter Fuel Price: <span id="finalPricePerLiter">R28.45/L</span></h2>
+                <p class="price-validation">✅ Price within realistic range (R25-R35/L)</p>
+            </div>
+
+            <div class="section key-components">
+                <h4>💰 Pricing Breakdown</h4>
+                <div class="component-item">
+                    <span>Wholesale Price:</span>
+                    <span id="wholesaleDisplay">R18.00/L</span>
+                </div>
+                <div class="component-item">
+                    <span>Retail Price (Government Gazetted):</span>
+                    <span id="retailDisplay">R20.00/L</span>
+                </div>
+                <div class="component-item discount-item">
+                    <span>Customer Tier Discount:</span>
+                    <span id="tierDiscountDisplay">-R2.40/L (12%)</span>
+                </div>
+                <div class="component-item">
+                    <span>Exchange Rate Adjustment:</span>
+                    <span id="exchangeAdjustment">Applied (18.75 ZAR/USD)</span>
+                </div>
+                <div class="component-item">
+                    <span>Country Factor:</span>
+                    <span id="countryAdjustment">South Africa (1.0x)</span>
+                </div>
+                <div class="component-item">
+                    <span>Grid Location Adjustment:</span>
+                    <span id="gridAdjustment">Urban (1.0x)</span>
+                </div>
+            </div>
+
+            <div class="section dynamic-notes">
+                <h4>💡 Dynamic Calculation Engine</h4>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <strong>Pricing Foundation:</strong> Wholesale (R<span id="currentWholesale">18.00</span>/L) and Retail (R<span id="currentRetail">20.00</span>/L) base prices
+                    </div>
+                    <div class="feature-item">
+                        <strong>Customer Discounts:</strong> Tier <span id="currentTier">6</span> receives <span id="tierDiscountPercent">12%</span> discount from retail price
+                    </div>
+                    <div class="feature-item">
+                        <strong>Geographic Adjustments:</strong> <span id="countryName">South Africa</span> (<span id="countryMultiplier">1.0x</span>) + <span id="locationName">Urban</span> grid (<span id="gridMultiplier">1.0x</span>)
+                    </div>
+                    <div class="feature-item">
+                        <strong>Market Factors:</strong> Exchange rate (<span id="currentRate">18.75</span> ZAR/USD) applied for currency-sensitive adjustments
+                    </div>
+                </div>
+            </div>
+
+            <div class="detailed-breakdown" style="display: none;">
+                <div class="section calculation-steps">
+                    <h4>🧮 Detailed Calculation Steps</h4>
+                    <div class="calculation-step">
+                        <strong>Step 1: Start with Retail Price</strong>
+                        <div class="calculation-formula">
+                            <span class="formula">Government Gazetted Price: R<span id="retailInput">20.00</span>/L</span>
+                        </div>
+                    </div>
+                    
+                    <div class="calculation-step">
+                        <strong>Step 2: Apply Customer Tier Discount</strong>
+                        <div class="calculation-formula">
+                            <span class="formula">R<span id="retailForDiscount">20.00</span>/L × <span id="tierDiscountInput">12%</span> = -R<span id="tierDiscountResult">2.40</span>/L</span>
+                        </div>
+                    </div>
+
+                    <div class="calculation-step">
+                        <strong>Step 3: Apply Exchange Rate Adjustment</strong>
+                        <div class="calculation-formula">
+                            <span class="formula">Currency impact based on <span id="exchangeRateInput">18.75</span> ZAR/USD rate</span>
+                        </div>
+                    </div>
+
+                    <div class="calculation-step">
+                        <strong>Step 4: Apply Country Factor</strong>
+                        <div class="calculation-formula">
+                            <span class="formula">Price × <span id="countryFactorInput">1.0</span> (Country Risk Adjustment)</span>
+                        </div>
+                    </div>
+
+                    <div class="calculation-step">
+                        <strong>Step 5: Apply Grid Location Factor</strong>
+                        <div class="calculation-formula">
+                            <span class="formula">Price × <span id="gridFactorInput">1.0</span> (Location Adjustment)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="toggle-section">
+                <button id="toggleDetails" class="toggle-btn">🔍 View Detailed Calculation Steps</button>
+            </div>
+
+            <div class="calculation-note">
+                <p><strong>🎯 Fully Dynamic Pricing:</strong> All components adjust automatically based on your input variables. Change crude price, tier, or location to see immediate price updates.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script_simplified.js"></script>
+</body>
+</html>

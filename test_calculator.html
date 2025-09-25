@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fuel Pricing Test</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #1a1a1a; color: #fff; padding: 20px; }
+    .container { max-width: 800px; margin: auto; }
+    .result { background: #2a2a2a; padding: 15px; margin: 10px 0; border-radius: 8px; }
+    .price { font-size: 1.5em; color: #4CAF50; font-weight: bold; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th, td { padding: 10px; text-align: left; border-bottom: 1px solid #444; }
+    th { background: #333; }
+    button { background: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Fuel Pricing Calculator Test</h1>
+    
+    <div>
+      <label>Country:</label>
+      <select id="country">
+        <option value="south-africa">South Africa</option>
+        <option value="zimbabwe" selected>Zimbabwe</option>
+        <option value="botswana">Botswana</option>
+      </select>
+      
+      <label>Tier:</label>
+      <select id="tier">
+        <option value="1">Tier 1</option>
+        <option value="6" selected>Tier 6</option>
+        <option value="14">Tier 14</option>
+      </select>
+      
+      <label>Location:</label>
+      <select id="location">
+        <option value="coastal">Coastal</option>
+        <option value="inland" selected>Inland</option>
+      </select>
+      
+      <button onclick="testCalculation()">Calculate</button>
+    </div>
+    
+    <div id="result" class="result" style="display:none;">
+      <div class="price" id="price"></div>
+      <table id="breakdown"></table>
+    </div>
+  </div>
+
+  <script>
+    // Same realistic model
+    const model = {
+      baseFuelCost: {'south-africa': 16.50, 'zimbabwe': 19.80, 'botswana': 17.20},
+      wholesaleMarginPct: {'south-africa': 0.048, 'zimbabwe': 0.062, 'botswana': 0.055},
+      retailMarginPct: {'south-africa': 0.065, 'zimbabwe': 0.078, 'botswana': 0.070},
+      fuelLevy: {'south-africa': 3.93, 'zimbabwe': 2.50, 'botswana': 2.20},
+      tierDiscounts: {1:0.00, 2:0.005, 3:0.010, 4:0.015, 5:0.020, 6:0.025, 7:0.030, 8:0.035, 9:0.040, 10:0.045, 11:0.050, 12:0.055, 13:0.060, 14:0.065},
+      transportCost: {'coastal': 0.35, 'inland': 0.65},
+      currencyRisk: {'south-africa': 0.012, 'zimbabwe': 0.028, 'botswana': 0.015},
+      politicalRisk: {'south-africa': 0.008, 'zimbabwe': 0.022, 'botswana': 0.010},
+      volumeEstimates: {1: 2500, 2: 3200, 3: 4000, 4: 4800, 5: 5600, 6: 6500, 7: 7200, 8: 8000, 9: 8800, 10: 9600, 11: 10400, 12: 11200, 13: 12000, 14: 12800}
+    };
+
+    function calculatePrice(tier, country, location) {
+      const baseCost = model.baseFuelCost[country];
+      const fuelLevy = model.fuelLevy[country];
+      const costAfterLevy = baseCost + fuelLevy;
+      
+      const wholesaleMarginPct = model.wholesaleMarginPct[country];
+      const wholesaleMargin = costAfterLevy * wholesaleMarginPct;
+      const wholesalePrice = costAfterLevy + wholesaleMargin;
+      
+      const retailMarginPct = model.retailMarginPct[country];
+      const retailMargin = wholesalePrice * retailMarginPct;
+      const baseRetail = wholesalePrice + retailMargin;
+      
+      const tierDiscountPct = model.tierDiscounts[tier];
+      const tierDiscount = baseRetail * tierDiscountPct;
+      const afterDiscount = baseRetail - tierDiscount;
+      
+      const transportCost = model.transportCost[location];
+      const afterTransport = afterDiscount + transportCost;
+      
+      const currencyRiskPct = model.currencyRisk[country];
+      const politicalRiskPct = model.politicalRisk[country];
+      
+      const currencyRisk = afterTransport * currencyRiskPct;
+      const politicalRisk = afterTransport * politicalRiskPct;
+      
+      const finalPrice = afterTransport + currencyRisk + politicalRisk;
+      const volume = model.volumeEstimates[tier];
+      const totalCost = finalPrice * volume;
+      
+      return {
+        baseCost, fuelLevy, costAfterLevy, wholesalePrice, retailMargin, baseRetail,
+        tierDiscount, afterDiscount, transportCost, afterTransport,
+        currencyRisk, politicalRisk, finalPrice, volume, totalCost,
+        wholesaleMarginPct, retailMarginPct, tierDiscountPct, currencyRiskPct, politicalRiskPct
+      };
+    }
+
+    function testCalculation() {
+      const tier = parseInt(document.getElementById('tier').value);
+      const country = document.getElementById('country').value;
+      const location = document.getElementById('location').value;
+      
+      const result = calculatePrice(tier, country, location);
+      
+      document.getElementById('price').textContent = `Final Price: R${result.finalPrice.toFixed(2)}/L`;
+      
+      const breakdown = document.getElementById('breakdown');
+      breakdown.innerHTML = `
+        <tr><th>Component</th><th>Amount</th><th>Calculation</th></tr>
+        <tr><td>Base Cost</td><td>R${result.baseCost.toFixed(2)}</td><td>Market rate</td></tr>
+        <tr><td>Fuel Levy</td><td>R${result.fuelLevy.toFixed(2)}</td><td>Government levy</td></tr>
+        <tr><td>Wholesale Price</td><td>R${result.wholesalePrice.toFixed(2)}</td><td>${(result.wholesaleMarginPct*100).toFixed(1)}% margin</td></tr>
+        <tr><td>Retail Margin</td><td>R${result.retailMargin.toFixed(2)}</td><td>${(result.retailMarginPct*100).toFixed(1)}% margin</td></tr>
+        <tr><td>Base Retail</td><td>R${result.baseRetail.toFixed(2)}</td><td>Before discounts</td></tr>
+        <tr><td>Tier Discount</td><td>-R${result.tierDiscount.toFixed(2)}</td><td>${(result.tierDiscountPct*100).toFixed(1)}% loyalty</td></tr>
+        <tr><td>Transport Cost</td><td>+R${result.transportCost.toFixed(2)}</td><td>${location} delivery</td></tr>
+        <tr><td>Currency Risk</td><td>+R${result.currencyRisk.toFixed(2)}</td><td>${(result.currencyRiskPct*100).toFixed(1)}% premium</td></tr>
+        <tr><td>Political Risk</td><td>+R${result.politicalRisk.toFixed(2)}</td><td>${(result.politicalRiskPct*100).toFixed(1)}% premium</td></tr>
+        <tr style="background:#333;"><td><strong>FINAL PRICE</strong></td><td><strong>R${result.finalPrice.toFixed(2)}/L</strong></td><td><strong>Realistic pricing</strong></td></tr>
+        <tr><td>Volume</td><td>${result.volume.toLocaleString()} L</td><td>Tier ${tier} estimate</td></tr>
+        <tr><td>Total Cost</td><td>R${result.totalCost.toFixed(2)}</td><td>Volume × Price/L</td></tr>
+      `;
+      
+      document.getElementById('result').style.display = 'block';
+    }
+
+    // Test on load
+    testCalculation();
+  </script>
+</body>
+</html>
