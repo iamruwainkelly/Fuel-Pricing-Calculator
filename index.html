@@ -556,7 +556,8 @@
       model.retailMarginPct[currentCountry] = parseFloat(retailMarginSlider.value) / 100;
       model.currencyRisk[currentCountry] = parseFloat(currencyRiskSlider.value) / 100;
       model.politicalRisk[currentCountry] = parseFloat(politicalRiskSlider.value) / 100;
-      model.transportCost[currentGrid] = parseFloat(transportSlider.value);
+      // Transport cost is now country-specific, so update the nested structure
+      model.transportCost[currentCountry][currentGrid] = parseFloat(transportSlider.value);
       
       calculate();
     }
@@ -595,7 +596,18 @@
         'south-africa': 0.008, 'zimbabwe': 0.022, 'botswana': 0.010
       };
       model.transportCost = {
-        'coastal': 0.35, 'inland': 0.65
+        'south-africa': {
+          'coastal': 0.85,      // R0.85/L coastal transport
+          'inland': 3.28        // R3.28/L inland transport (R2.43 difference)
+        },
+        'zimbabwe': {
+          'coastal': 1.15,      // R1.15/L coastal transport  
+          'inland': 2.72        // R2.72/L inland transport (R1.57 difference)
+        },
+        'botswana': {
+          'coastal': 0.95,      // R0.95/L coastal transport
+          'inland': 2.84        // R2.84/L inland transport (R1.89 difference)
+        }
       };
       model.tierDiscounts = {
         1:0.00, 2:0.005, 3:0.010, 4:0.015, 5:0.020, 6:0.025,
