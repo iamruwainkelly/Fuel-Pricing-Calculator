@@ -318,10 +318,20 @@
         13:0.060, 14:0.065
       },
       
-      // FIXED transport costs per liter (realistic amounts)
+      // REALISTIC transport costs per liter with significant inland/coastal differences
       transportCost: {
-        'coastal': 0.35,        // R0.35/L coastal transport
-        'inland': 0.65          // R0.65/L inland transport
+        'south-africa': {
+          'coastal': 0.85,      // R0.85/L coastal transport
+          'inland': 3.28        // R3.28/L inland transport (R2.43 difference)
+        },
+        'zimbabwe': {
+          'coastal': 1.15,      // R1.15/L coastal transport  
+          'inland': 2.72        // R2.72/L inland transport (R1.57 difference)
+        },
+        'botswana': {
+          'coastal': 0.95,      // R0.95/L coastal transport
+          'inland': 2.84        // R2.84/L inland transport (R1.89 difference)
+        }
       },
       
       // SMALL risk premiums (realistic percentages)
@@ -450,9 +460,17 @@
         model.politicalRisk[c] = baseValues.politicalRisk * mult.political;
       });
       
-      // Apply transport costs with location multipliers to maintain coastal/inland differences  
-      model.transportCost['coastal'] = baseValues.transportCost * 0.54; // Coastal = ~54% of inland
-      model.transportCost['inland'] = baseValues.transportCost * 1.00;  // Inland = base value
+      // Apply transport costs with country and location specific differences  
+      Object.keys(countryMultipliers).forEach(c => {
+        const mult = countryMultipliers[c];
+        // Maintain the realistic differences: SA R2.43, ZW R1.57, BW R1.89
+        const coastalBase = baseValues.transportCost * mult.base * 0.6; // Coastal base
+        const inlandDiff = c === 'south-africa' ? 2.43 : c === 'zimbabwe' ? 1.57 : 1.89;
+        model.transportCost[c] = {
+          'coastal': coastalBase,
+          'inland': coastalBase + inlandDiff
+        };
+      });
       
       // Update tier discounts based on max discount slider
       const maxDisc = parseFloat(maxDiscountSlider.value) / 100;
@@ -519,8 +537,9 @@
         return;
       }
       
+      const c = country.value;
       const g = grid.value;
-      const transportCost = g === 'coastal' ? 0.35 : 0.65;
+      const transportCost = model.transportCost[c][g];
       transportSlider.value = transportCost;
       document.getElementById("transportValue").textContent = `R${transportCost.toFixed(2)}`;
     }
@@ -633,8 +652,8 @@
       const tierDiscountPerLiter = baseRetailPricePerLiter * tierDiscountPct;
       const priceAfterDiscountPerLiter = baseRetailPricePerLiter - tierDiscountPerLiter;
       
-      // STEP 6: Add transport cost (FIXED amount per liter)
-      const transportCostPerLiter = model.transportCost[gridLocation];
+      // STEP 6: Add transport cost (COUNTRY and LOCATION specific amounts per liter)
+      const transportCostPerLiter = model.transportCost[country][gridLocation];
       const priceAfterTransportPerLiter = priceAfterDiscountPerLiter + transportCostPerLiter;
       
       // STEP 7: Apply SMALL risk premiums (small percentages)
