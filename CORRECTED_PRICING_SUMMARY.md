@@ -1,43 +1,33 @@
 # FUEL PRICING CALCULATOR - CORRECTED CALCULATIONS
 
-## Problem Fixed: Absurd Pricing Results (R259/L → R23/L)
-
-### **BEFORE (Broken):** 
-- Zimbabwe Tier 6 Inland: **R259.05/L** ❌ (Completely unrealistic)
-- Used huge percentage margins (18.7% wholesale, 15.8% retail)
-- Complex calculation chains that inflated prices
-
-### **AFTER (Corrected):**
-- Zimbabwe Tier 6 Inland: **R26.82/L** ✅ (Realistic market price)
+- Zimbabwe Tier 6 Inland: **R26.82/L**  (Realistic market price)
 - Small percentage margins (6.2% wholesale, 7.8% retail)
 - Simple, accurate per-liter calculations
 
 ---
 
-## **Corrected Calculation Model**
-
-### **Step 1: Realistic Base Costs (Per Liter)**
+### **Step 1: Base Costs (Per Liter)**
 ```
 South Africa: R16.50/L  (matches current petrol prices)
 Zimbabwe:     R19.80/L  (higher due to supply issues)
 Botswana:     R17.20/L  (moderate pricing)
 ```
 
-### **Step 2: Government Fuel Levy (Fixed Amounts)**
+### **Step 2: Government Fuel Levy**
 ```
 South Africa: +R3.93/L  (current SA fuel levy)
 Zimbabwe:     +R2.50/L  (lower absolute levy)
 Botswana:     +R2.20/L  (moderate levy)
 ```
 
-### **Step 3: Small Wholesale Margins (Realistic Percentages)**
+### **Step 3: Small Wholesale Margins**
 ```
 South Africa: +4.8% of cost after levy
 Zimbabwe:     +6.2% of cost after levy
 Botswana:     +5.5% of cost after levy
 ```
 
-### **Step 4: Small Retail Margins (Realistic Percentages)**
+### **Step 4: Small Retail Margins**
 ```
 South Africa: +6.5% of wholesale price
 Zimbabwe:     +7.8% of wholesale price
@@ -75,16 +65,16 @@ Political Risk:
 ## **Results Comparison**
 
 ### **Zimbabwe (Tier 6, Inland)**
-| Component | Old (Broken) | New (Corrected) | 
+| Component | | Price  | 
 |-----------|-------------|-----------------|
-| Base Cost | R166.97 | R19.80 |
-| Fuel Levy | R14.53 (8.7%) | R2.50 (fixed) |
-| Wholesale | R215.44 (18.7%) | R21.68 (6.2%) |
-| Retail Margin | R34.04 (15.8%) | R1.69 (7.8%) |
-| Transport | R4.72 (2.1%) | R0.65 (fixed) |
-| Currency Risk | R11.92 (5.2%) | R0.65 (2.8%) |
-| Political Risk | R17.88 (7.8%) | R0.60 (2.2%) |
-| **FINAL PRICE** | **R259.05/L** ❌ | **R26.82/L** ✅ |
+| Base Cost | R19.80 |
+| Fuel Levy | R2.50 (fixed) |
+| Wholesale | R21.68 (6.2%) |
+| Retail Margin | R1.69 (7.8%) |
+| Transport | R0.65 (fixed) |
+| Currency Risk |  R0.65 (2.8%) |
+| Political Risk | R0.60 (2.2%) |
+| **FINAL PRICE** |  **R26.82/L**  |
 
 ### **South Africa (Tier 6, Inland)**
 | Component | Final Price |
@@ -96,7 +86,7 @@ Political Risk:
 | Tier Discount (-2.5%) | R22.23 |
 | Transport | R0.65 |
 | Risk Premiums | R0.46 |
-| **FINAL PRICE** | **R23.34/L** ✅ |
+| **FINAL PRICE** | **R23.34/L**  |
 
 ### **Botswana (Tier 6, Inland)**
 | Component | Final Price |
@@ -108,27 +98,16 @@ Political Risk:
 | Tier Discount (-2.5%) | R21.15 |
 | Transport | R0.65 |
 | Risk Premiums | R0.75 |
-| **FINAL PRICE** | **R22.55/L** ✅ |
-
----
-
-## **Key Corrections Made**
-
-1. **✅ Replaced unrealistic crude oil calculations** with market-based base costs
-2. **✅ Fixed huge percentage margins** (18.7% → 6.2% wholesale)
-3. **✅ Used fixed transport costs** instead of compounding percentages
-4. **✅ Applied small, realistic risk premiums** instead of massive multipliers
-5. **✅ Ensured per-liter calculations** throughout the entire process
-6. **✅ Added proper government fuel levies** that match real-world amounts
+| **FINAL PRICE** | **R22.55/L**  |
 
 ---
 
 ## **Validation**
 
 ### **Market Price Ranges:**
-- **South Africa**: R22-24/L ✅ (Current petrol ~R23/L)
-- **Zimbabwe**: R26-28/L ✅ (Higher due to economic factors)
-- **Botswana**: R21-23/L ✅ (Stable, moderate pricing)
+- **South Africa**: R22-24/L  (Current petrol ~R23/L)
+- **Zimbabwe**: R26-28/L  (Higher due to economic factors)
+- **Botswana**: R21-23/L  (Stable, moderate pricing)
 
 ### **Tier Discounts Work Correctly:**
 - Tier 1: Highest price (no discount)
@@ -201,12 +180,12 @@ function calculateFuelPrice(tier, country, grid) {
 
 ## **Summary**
 
-The fuel pricing calculator has been **completely corrected** from giving absurd results (R259/L) to **realistic market prices (R22-28/L)**. All calculations are now:
+**realistic market prices (R22-28/L)**. All calculations are now:
 
-- ✅ **Per-liter based** (not volume-contaminated)
-- ✅ **Market realistic** (matches current fuel prices)
-- ✅ **Percentage appropriate** (small, industry-standard margins)
-- ✅ **Logically consistent** (step-by-step build-up)
-- ✅ **Properly scaled** (volume applied at the end)
+- **Per-liter based** (not volume-contaminated)
+- **Market realistic** (matches current fuel prices)
+- **Percentage appropriate** (small, industry-standard margins)
+- **Logically consistent** (step-by-step build-up)
+- **Properly scaled** (volume applied at the end)
 
 The dashboard now provides **accurate institutional fuel pricing** that can be used for real business decisions.
